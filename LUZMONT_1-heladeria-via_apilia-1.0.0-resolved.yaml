@@ -1,0 +1,360 @@
+---
+openapi: 3.0.0
+info:
+  title: Heladería Via Apilia
+  description: |
+    API de la Heladería Via Apilia. A través de esta API se pueden consultar
+    los gustos de helado y realizar pedidos.
+    Esta es una descripción.
+  contact:
+    email: devs@heladeria-apilia.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/guidodecaso/heladeria-template/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: https://api.heladeria-apilia.com
+paths:
+  /pedidos/{idPedido}/potes/{idPote}:
+    get:
+      parameters:
+      - name: idPedido
+        in: path
+        description: qué id de pedido queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      - name: idPote
+        in: path
+        description: qué id de pote queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      responses:
+        "404":
+          description: No encontramos el pedido o el pote
+        "200":
+          description: hemos encontrado el pote solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pote'
+    delete:
+      parameters:
+      - name: idPedido
+        in: path
+        description: qué id de pedido queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      - name: idPote
+        in: path
+        description: qué id de pote queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      responses:
+        "404":
+          description: No encontramos el pedido o el pote
+        "204":
+          description: hemos encontrado el pote solicitado y se ha borrado del pedido
+  /pedidos/{idPedido}/potes:
+    get:
+      parameters:
+      - name: idPedido
+        in: path
+        description: qué id de pedido queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      responses:
+        "404":
+          description: No encontramos el pedido
+        "200":
+          description: devolvemos los potes del pedido encontrado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pote'
+    post:
+      description: agrega un pote al pedido
+      parameters:
+      - name: idPedido
+        in: path
+        description: qué id de pedido queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/idPedido_potes_body'
+      responses:
+        "201":
+          description: El pote fue agregado al pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pote'
+        "404":
+          description: No se conoce un pedido con tal id
+  /pedidos/{idPedido}/pagar:
+    post:
+      parameters:
+      - name: idPedido
+        in: path
+        description: qué id de pedido queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatosDePago'
+      responses:
+        "404":
+          description: No pudimos iniciar el pago
+        "200":
+          description: Se inició el pago
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+  /pedidos/{idPedido}/pago:
+    get:
+      parameters:
+      - name: idPedido
+        in: path
+        description: qué id de pedido queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      responses:
+        "200":
+          description: Este es el estado de su pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatosDePago'
+        "404":
+          description: No encontramos el pedido del cual se quiere ver el estado de envío
+  /pedidos/{idPedido}:
+    get:
+      parameters:
+      - name: idPedido
+        in: path
+        description: qué id de pedido queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      responses:
+        "404":
+          description: No encontramos el pedido
+        "200":
+          description: Encontramos el pedido solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+    patch:
+      description: cambiar la dirección de envío de un pedido
+      parameters:
+      - name: idPedido
+        in: path
+        description: qué id de pedido queremos ver
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+          format: i32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              description: dirección en la que se ha de entregar este pedido
+      responses:
+        "404":
+          description: No pudimos cmabiar la dirección de envío
+        "200":
+          description: Cambiamos la dirección de envío
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+  /gustos:
+    get:
+      description: Listar los gustos de helado
+      parameters:
+      - name: tipo
+        in: query
+        description: "opcionalmente, qué tipo de gustos queremos listar"
+        required: false
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/TipoDeGusto'
+      responses:
+        "200":
+          description: Estos son los gustos de helado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Gusto'
+components:
+  schemas:
+    DatosDePago:
+      required:
+      - modoDePago
+      type: object
+      properties:
+        modoDePago:
+          type: string
+          example: efectivo
+          enum:
+          - credito
+          - debito
+          - efectivo
+        tipoDeTarjeta:
+          type: string
+          example: visa
+          enum:
+          - visa
+          - mastercard
+          - amex
+          - american express
+    PesoDePote:
+      type: string
+      description: peso del pote
+      example: "500"
+      enum:
+      - "1000"
+      - "500"
+      - "250"
+    TipoDeGusto:
+      type: string
+      description: el tipo de gusto
+      enum:
+      - dulce_de_leches
+      - cremas
+      - chocolates
+      - frutas
+    Pote:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        peso:
+          $ref: '#/components/schemas/PesoDePote'
+        gustos:
+          maxItems: 4
+          minItems: 1
+          type: array
+          items:
+            type: string
+            description: "Acá usamos el id de los gustos asociados a este pote. Los potes de 250 no pueden tener 4 gustos, sino máximo 3."
+            example: ddl
+      description: un pote de helado con uno o más gustos
+    Gusto:
+      required:
+      - id
+      - nombre
+      - tipo
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Un nombre corto para este gusto de helado, que sirve como identificador"
+          example: ddl
+        nombre:
+          type: string
+          description: nombre legible por humanos
+          example: Dulce de leche
+        tipo:
+          $ref: '#/components/schemas/TipoDeGusto'
+      description: un gusto de helado
+    Pedido:
+      type: object
+      properties:
+        id:
+          type: number
+          format: i32
+          example: 101
+        direccion_de_envio:
+          type: string
+          example: Rivadavia 1234 4to C
+      description: Representa un pedido de helados
+    idPedido_potes_body:
+      required:
+      - gustos
+      - peso
+      type: object
+      properties:
+        peso:
+          $ref: '#/components/schemas/PesoDePote'
+        gustos:
+          type: array
+          description: los gustos de helado en este pote
+          example:
+          - ddl
+          - pist
+          items:
+            type: string
+  parameters:
+    IdDePedido:
+      name: idPedido
+      in: path
+      description: qué id de pedido queremos ver
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: number
+        format: i32
+    IdDePote:
+      name: idPote
+      in: path
+      description: qué id de pote queremos ver
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: number
+        format: i32
